@@ -1,29 +1,27 @@
 import os
-import zipfile
+import requests
 
-# 自动解压模型文件（压缩版上传，运行时解压）
-def unzip_model():
-    zip_path = "music_popularity_rf.zip"  # 你上传到 GitHub 的压缩包
-    pkl_path = "music_popularity_rf.pkl"  # 解压后还原的模型文件
-
-    # 如果模型已经存在，就不用再解压了
-    if os.path.exists(pkl_path):
-        print("✅ 模型已存在，无需解压")
+def download_model():
+    model_path = "music_popularity_rf.pkl"
+    
+    # 如果已经有模型，就不下载
+    if os.path.exists(model_path):
+        print("✅ 模型已存在")
         return
 
-    # 如果压缩包都找不到，直接报错
-    if not os.path.exists(zip_path):
-        raise FileNotFoundError(f"❌ 找不到压缩包文件：{zip_path}，请确认已上传到 GitHub")
+    print("⏳ 正在下载模型... 请稍等")
+    # 把下面的链接换成你自己的 file.io 链接
+    url = "https://limewire.com/d/A4611#6a3qCEPfeH"
+    
+    r = requests.get(url, stream=True)
+    with open(model_path, "wb") as f:
+        for chunk in r.iter_content(chunk_size=1024*1024):
+            f.write(chunk)
+    
+    print("✅ 模型下载完成！")
 
-    # 解压 zip，还原 pkl
-    print("⏳ 正在解压模型文件...")
-    with zipfile.ZipFile(zip_path, "r") as zip_ref:
-        zip_ref.extractall(".")
-
-    print("✅ 模型解压完成！")
-
-# 启动时自动执行解压
-unzip_model()
+# 启动时自动运行
+download_model()
 
 import streamlit as st
 import pandas as pd
