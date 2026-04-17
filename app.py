@@ -143,9 +143,18 @@ def load_assets():
         with open(MODEL_PATH, 'wb') as f:
             response = requests.get(MODEL_URL)
             f.write(response.content)
-    
+# 下载模型（带状态检查）
+    if not os.path.exists(MODEL_PATH):
+        with st.spinner('Downloading model from GitHub...'):
+            response = requests.get(MODEL_URL)
+            if response.status_code == 200:
+                with open(MODEL_PATH, 'wb') as f:
+                    f.write(response.content)
+                st.success('Model downloaded successfully!')
+            else:
+                st.error(f'Failed to download model. Status: {response.status_code}')
+                st.stop
     model = joblib.load(MODEL_PATH)
-
     features = joblib.load('feature_columns.pkl')
     test = joblib.load('test.pkl')
     explainer = shap.TreeExplainer(model)
