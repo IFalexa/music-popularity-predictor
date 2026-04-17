@@ -131,9 +131,21 @@ components.html("""
 st.sidebar.html("<div style='text-align: center; font-weight: bold; font-size: 1.5rem;'>XXX系统</div><hr>")
 
 # --- 2. 资源加载 ---
+import requests
+import os
 @st.cache_resource
 def load_assets():
-    model = joblib.load('spotifymusic_popularity_rf.pkl')
+ # 大模型：从 GitHub Releases 下载（只下载一次，之后缓存）
+    MODEL_URL = "https://github.com/IFalexa/music-popularity-predictor/releases/download/v1.0/music_popularity_rf.pkl"
+    MODEL_PATH = "music_popularity_rf.pkl"
+    
+    if not os.path.exists(MODEL_PATH):
+        with open(MODEL_PATH, 'wb') as f:
+            response = requests.get(MODEL_URL)
+            f.write(response.content)
+    
+    model = joblib.load(MODEL_PATH)
+
     features = joblib.load('feature_columns.pkl')
     test = joblib.load('test.pkl')
     explainer = shap.TreeExplainer(model)
